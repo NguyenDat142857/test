@@ -1,0 +1,258 @@
+---
+config:
+  layout: elk
+  theme: base
+  themeVariables:
+    background: "#FFFFFF"
+    fontFamily: "Inter, Segoe UI, sans-serif"
+
+    fontSize: "18px"
+    labelFontSize: "16px"
+
+    nodeSpacing: 80
+    rankSpacing: 110
+
+    lineColor: "#64748B"
+    edgeLabelBackground: "#FFFFFF"
+---
+erDiagram
+
+%% =====================================================
+%% USER & AUTH SYSTEM
+%% =====================================================
+
+    USERS {
+        uuid id PK
+        string email
+        string password_hash
+        string full_name
+        string role
+        datetime created_at
+    }
+
+    USER_PREFERENCES {
+        uuid id PK
+        uuid user_id FK
+        string language
+        string interview_level
+    }
+
+    SUBSCRIPTIONS {
+        uuid id PK
+        uuid user_id FK
+        string plan
+        string status
+    }
+
+%% =====================================================
+%% CV & INTERVIEW SYSTEM
+%% =====================================================
+
+    CV_PROFILES {
+        uuid id PK
+        uuid user_id FK
+        string resume_url
+        text extracted_skills
+    }
+
+    INTERVIEW_SESSIONS {
+        uuid id PK
+        uuid user_id FK
+        string mode
+        string status
+        datetime started_at
+    }
+
+    QUESTIONS {
+        uuid id PK
+        uuid session_id FK
+        text question_text
+        string category
+    }
+
+    ANSWERS {
+        uuid id PK
+        uuid question_id FK
+        text answer_text
+        float technical_score
+        float communication_score
+    }
+
+    INTERVIEW_REPORTS {
+        uuid id PK
+        uuid session_id FK
+        float overall_score
+        text recommendations
+    }
+
+%% =====================================================
+%% LEARNING SYSTEM
+%% =====================================================
+
+    LEARNING_PATHS {
+        uuid id PK
+        uuid user_id FK
+        string title
+        string target_role
+    }
+
+    COURSES {
+        uuid id PK
+        string title
+        string difficulty
+    }
+
+    LESSONS {
+        uuid id PK
+        uuid course_id FK
+        string title
+    }
+
+    QUIZZES {
+        uuid id PK
+        uuid lesson_id FK
+        string title
+    }
+
+    USER_PROGRESS {
+        uuid id PK
+        uuid user_id FK
+        uuid lesson_id FK
+        float progress_percent
+    }
+
+    GAMIFICATION {
+        uuid id PK
+        uuid user_id FK
+        integer xp
+        integer level
+    }
+
+%% =====================================================
+%% COMMUNITY SYSTEM
+%% =====================================================
+
+    FORUM_POSTS {
+        uuid id PK
+        uuid user_id FK
+        string title
+    }
+
+    FORUM_COMMENTS {
+        uuid id PK
+        uuid post_id FK
+        uuid user_id FK
+    }
+
+    NOTES {
+        uuid id PK
+        uuid user_id FK
+        string title
+    }
+
+%% =====================================================
+%% RAG & AI SYSTEM
+%% =====================================================
+
+    RAG_DOCUMENTS {
+        uuid id PK
+        string title
+        text content
+    }
+
+    VECTOR_EMBEDDINGS {
+        uuid id PK
+        uuid document_id FK
+        string embedding_model
+    }
+
+    AI_PROMPTS {
+        uuid id PK
+        string prompt_name
+        text prompt_content
+    }
+
+%% =====================================================
+%% ADMIN & MONITORING
+%% =====================================================
+
+    ADMIN_LOGS {
+        uuid id PK
+        uuid admin_id FK
+        string action
+    }
+
+    SYSTEM_METRICS {
+        uuid id PK
+        float cpu_usage
+        float memory_usage
+        float response_time
+    }
+
+%% =====================================================
+%% RELATIONSHIPS
+%% =====================================================
+
+    USERS ||--|| USER_PREFERENCES : has
+    USERS ||--o{ SUBSCRIPTIONS : owns
+
+    USERS ||--o{ CV_PROFILES : uploads
+
+    USERS ||--o{ INTERVIEW_SESSIONS : starts
+    INTERVIEW_SESSIONS ||--o{ QUESTIONS : contains
+    QUESTIONS ||--o{ ANSWERS : receives
+    INTERVIEW_SESSIONS ||--|| INTERVIEW_REPORTS : generates
+
+    USERS ||--o{ LEARNING_PATHS : follows
+
+    COURSES ||--o{ LESSONS : contains
+    LESSONS ||--o{ QUIZZES : has
+
+    USERS ||--o{ USER_PROGRESS : tracks
+    LESSONS ||--o{ USER_PROGRESS : updates
+
+    USERS ||--|| GAMIFICATION : earns
+
+    USERS ||--o{ FORUM_POSTS : creates
+    FORUM_POSTS ||--o{ FORUM_COMMENTS : contains
+    USERS ||--o{ NOTES : owns
+
+    RAG_DOCUMENTS ||--o{ VECTOR_EMBEDDINGS : embedded_as
+
+    USERS ||--o{ ADMIN_LOGS : manages
+
+%% =====================================================
+%% COLORS
+%% =====================================================
+
+    style USERS fill:#EFF6FF,stroke:#2563EB,stroke-width:3px,color:#1E3A8A,font-weight:bold
+
+    style USER_PREFERENCES fill:#FFFFFF,stroke:#64748B,stroke-width:2px
+    style SUBSCRIPTIONS fill:#FFFFFF,stroke:#64748B,stroke-width:2px
+
+    style CV_PROFILES fill:#DBEAFE,stroke:#1D4ED8,stroke-width:2px,color:#1E40AF
+
+    style INTERVIEW_SESSIONS fill:#F3E8FF,stroke:#7C3AED,stroke-width:2px,color:#6B21A8
+    style QUESTIONS fill:#F3E8FF,stroke:#7C3AED,stroke-width:2px
+    style ANSWERS fill:#F3E8FF,stroke:#7C3AED,stroke-width:2px
+
+    style INTERVIEW_REPORTS fill:#ECFDF5,stroke:#059669,stroke-width:3px,color:#065F46,font-weight:bold
+
+    style LEARNING_PATHS fill:#FFFFFF,stroke:#64748B,stroke-width:2px
+    style COURSES fill:#FFFFFF,stroke:#64748B,stroke-width:2px
+    style LESSONS fill:#FFFFFF,stroke:#64748B,stroke-width:2px
+    style QUIZZES fill:#FFFFFF,stroke:#64748B,stroke-width:2px
+
+    style USER_PROGRESS fill:#ECFDF5,stroke:#10B981,stroke-width:2px
+    style GAMIFICATION fill:#ECFDF5,stroke:#10B981,stroke-width:2px,color:#065F46
+
+    style FORUM_POSTS fill:#F8FAFC,stroke:#64748B,stroke-width:2px
+    style FORUM_COMMENTS fill:#F8FAFC,stroke:#64748B,stroke-width:2px
+    style NOTES fill:#F8FAFC,stroke:#64748B,stroke-width:2px
+
+    style RAG_DOCUMENTS fill:#EFF6FF,stroke:#2563EB,stroke-width:2px,color:#1E40AF
+    style VECTOR_EMBEDDINGS fill:#EFF6FF,stroke:#2563EB,stroke-width:2px
+    style AI_PROMPTS fill:#FFF7ED,stroke:#EA580C,stroke-width:2px
+
+    style ADMIN_LOGS fill:#FFF7ED,stroke:#EA580C,stroke-width:2px
+    style SYSTEM_METRICS fill:#FCE7F3,stroke:#BE185D,stroke-width:2px,color:#9D174D
