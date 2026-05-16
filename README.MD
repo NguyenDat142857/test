@@ -1,89 +1,85 @@
-# README — Database Architecture Documentation
+# AI Interview Platform — Database Architecture Documentation
 
-## AI Interview & Learning Platform — MySQL Database Design
+## Overview
 
----
+This document describes the database architecture design for the AI Interview Platform system.
 
-# 1. Overview
+The platform is designed to support:
 
-This document describes the database architecture of the **AI Interview & Learning Platform**.
+- AI-powered interview simulation
+- CV analysis & OCR processing
+- Personalized learning roadmap
+- Community interaction
+- Gamification
+- RAG (Retrieval-Augmented Generation)
+- Admin management & monitoring
 
-The system is designed to support:
+The database architecture is organized into multiple modules to ensure:
 
-* AI-powered interview simulation
-* CV analysis & OCR
-* Personalized learning paths
-* Gamification
-* Community interaction
-* RAG (Retrieval-Augmented Generation)
-* AI prompt management
-* Monitoring & analytics
-* Admin management
-
-The architecture is separated into multiple domains for scalability and maintainability.
-
----
-
-# 2. Database Technology Stack
-
-| Component         | Technology                                                  |
-| ----------------- | ----------------------------------------------------------- |
-| Database          | MySQL                                                       |
-| ORM / Query Layer | SQLAlchemy / Prisma / TypeORM (depending on implementation) |
-| Cache             | Redis                                                       |
-| Vector Database   | Weaviate                                                    |
-| Object Storage    | MinIO                                                       |
-| Monitoring        | Prometheus + Grafana                                        |
-| AI Observability  | Langfuse                                                    |
+- Scalability
+- Maintainability
+- High cohesion
+- Separation of concerns
+- AI system extensibility
 
 ---
 
-# 3. Database Domains
+# Database Technology
 
-The database is divided into the following modules:
-
-| Domain                           | Purpose                                |
-| -------------------------------- | -------------------------------------- |
-| Authentication & User Management | User accounts and permissions          |
-| CV & Skill Analysis              | Resume processing and skill extraction |
-| AI Interview System              | AI-generated interviews and reports    |
-| Learning System                  | Courses, lessons, quizzes, progress    |
-| Community System                 | Forums, comments, notes                |
-| RAG & AI System                  | Vector embeddings and AI prompts       |
-| Admin & Monitoring               | System logs and metrics                |
+| Component | Technology |
+|---|---|
+| Main Database | MySQL |
+| Vector Database | Weaviate |
+| Cache Layer | Redis |
+| Object Storage | MinIO |
+| Monitoring | Prometheus + Grafana |
+| AI Observability | Langfuse |
 
 ---
 
-# 4. Authentication & User Management
+# Database Modules
+
+The database is divided into the following logical modules:
+
+1. User & Authentication System
+2. CV & Interview System
+3. Learning System
+4. Community System
+5. RAG & AI System
+6. Admin & Monitoring System
+
+---
+
+# 1. USER & AUTH SYSTEM
+
+This module manages:
+
+- User accounts
+- Authentication
+- User preferences
+- Subscription plans
 
 ---
 
 ## USERS
 
-Main user table storing account information.
+Main user table storing platform account information.
 
 ### Purpose
-
-* Authentication
-* Authorization
-* User identity
+- Store user identities
+- Manage login accounts
+- Role management
 
 ### Fields
 
-| Field         | Type     | Description           |
-| ------------- | -------- | --------------------- |
-| id            | UUID     | Primary key           |
-| email         | String   | User email            |
-| password_hash | String   | Encrypted password    |
-| full_name     | String   | Full name             |
-| role          | String   | User/Admin role       |
-| created_at    | Datetime | Account creation time |
-
-### Relationships
-
-* One user has one preference
-* One user has many subscriptions
-* One user has many interview sessions
+| Field | Type | Description |
+|---|---|---|
+| id | uuid | Primary key |
+| email | string | User email |
+| password_hash | string | Encrypted password |
+| full_name | string | Full name |
+| role | string | User role |
+| created_at | datetime | Account creation time |
 
 ---
 
@@ -92,93 +88,68 @@ Main user table storing account information.
 Stores user customization settings.
 
 ### Purpose
-
-* Language settings
-* Interview preferences
-* Difficulty level
+- Save learning preferences
+- Save interview level preferences
 
 ### Fields
 
-| Field           | Description        |
-| --------------- | ------------------ |
-| language        | Preferred language |
-| interview_level | Difficulty level   |
+| Field | Type |
+|---|---|
+| id | uuid |
+| user_id | uuid |
+| language | string |
+| interview_level | string |
 
 ---
 
 ## SUBSCRIPTIONS
 
-Stores premium plan information.
+Stores premium subscription information.
 
 ### Purpose
-
-* Billing
-* Subscription management
-* Feature access control
+- Manage paid plans
+- Track subscription status
 
 ### Fields
 
-| Field  | Description          |
-| ------ | -------------------- |
-| plan   | Free / Pro / Premium |
-| status | Active / Expired     |
+| Field | Type |
+|---|---|
+| id | uuid |
+| user_id | uuid |
+| plan | string |
+| status | string |
 
 ---
 
-# 5. CV & Skill Analysis System
+# 2. CV & INTERVIEW SYSTEM
+
+Core AI interview module.
+
+Handles:
+- Resume upload
+- Interview sessions
+- AI-generated questions
+- AI evaluation
 
 ---
 
 ## CV_PROFILES
 
-Stores uploaded resumes and extracted content.
+Stores uploaded CV data.
 
 ### Purpose
-
-* Resume storage
-* OCR analysis
-* Skill extraction
-
-### Features
-
-* AI resume parsing
-* Skill recommendation
-* Candidate profiling
+- Resume parsing
+- OCR extraction
+- Skill analysis
 
 ### Fields
 
-| Field            | Description         |
-| ---------------- | ------------------- |
-| resume_url       | File storage path   |
-| extracted_skills | AI extracted skills |
-
----
-
-## SKILLS
-
-Stores standardized skill names.
-
-### Examples
-
-* Python
-* React
-* Machine Learning
-* SQL
-
----
-
-## USER_SKILLS
-
-Many-to-many mapping between users and skills.
-
-### Purpose
-
-* Skill tracking
-* Personalized recommendations
-
----
-
-# 6. AI Interview System
+| Field | Type |
+|---|---|
+| id | uuid |
+| user_id | uuid |
+| resume_url | string |
+| extracted_skills | text |
 
 ---
 
@@ -187,15 +158,18 @@ Many-to-many mapping between users and skills.
 Stores interview sessions.
 
 ### Purpose
+- Track interview process
+- Save interview metadata
 
-* Interview lifecycle tracking
-* Multi-mode interviews
+### Fields
 
-### Supported Modes
-
-* Standard Interview
-* Zen Interview
-* Meet Interview
+| Field | Type |
+|---|---|
+| id | uuid |
+| user_id | uuid |
+| mode | string |
+| status | string |
+| started_at | datetime |
 
 ---
 
@@ -204,153 +178,196 @@ Stores interview sessions.
 Stores AI-generated interview questions.
 
 ### Purpose
-
-* Technical questions
-* Behavioral questions
-* Dynamic questioning
+- Save interview questions
+- Categorize question types
 
 ### Fields
 
-| Field      | Description            |
-| ---------- | ---------------------- |
-| category   | Technical / Behavioral |
-| difficulty | Easy / Medium / Hard   |
+| Field | Type |
+|---|---|
+| id | uuid |
+| session_id | uuid |
+| question_text | text |
+| category | string |
 
 ---
 
 ## ANSWERS
 
-Stores candidate responses.
+Stores user answers.
 
 ### Purpose
+- Evaluate interview performance
+- Analyze communication ability
 
-* AI scoring
-* Communication evaluation
-* Technical assessment
+### Fields
 
-### Metrics
-
-* Technical score
-* Communication score
+| Field | Type |
+|---|---|
+| id | uuid |
+| question_id | uuid |
+| answer_text | text |
+| technical_score | float |
+| communication_score | float |
 
 ---
 
 ## INTERVIEW_REPORTS
 
-Stores final interview analysis.
+Stores AI-generated interview feedback reports.
 
 ### Purpose
+- Final scoring
+- AI recommendations
+- Improvement suggestions
 
-* Candidate feedback
-* AI recommendations
-* Performance analysis
+### Fields
 
-### Generated Content
-
-* Strengths
-* Weaknesses
-* Improvement roadmap
+| Field | Type |
+|---|---|
+| id | uuid |
+| session_id | uuid |
+| overall_score | float |
+| recommendations | text |
 
 ---
 
-# 7. Learning System
+# 3. LEARNING SYSTEM
+
+This module manages personalized education and learning.
 
 ---
 
 ## LEARNING_PATHS
 
-Stores personalized learning plans.
+Stores personalized learning roadmaps.
 
 ### Purpose
+- AI-generated learning plans
+- Career preparation roadmap
 
-* AI-generated learning roadmap
-* Career-based recommendations
+### Fields
+
+| Field | Type |
+|---|---|
+| id | uuid |
+| user_id | uuid |
+| title | string |
+| target_role | string |
 
 ---
 
 ## COURSES
 
-Stores available learning courses.
+Stores course information.
 
-### Examples
+### Fields
 
-* System Design
-* React Basics
-* Machine Learning
+| Field | Type |
+|---|---|
+| id | uuid |
+| title | string |
+| difficulty | string |
 
 ---
 
 ## LESSONS
 
-Stores lesson content inside courses.
+Stores lessons inside courses.
 
-### Purpose
+### Fields
 
-* Structured learning modules
+| Field | Type |
+|---|---|
+| id | uuid |
+| course_id | uuid |
+| title | string |
 
 ---
 
 ## QUIZZES
 
-Stores lesson quizzes.
+Stores quizzes for lessons.
 
 ### Purpose
+- Knowledge testing
+- Skill evaluation
 
-* Knowledge assessment
+### Fields
+
+| Field | Type |
+|---|---|
+| id | uuid |
+| lesson_id | uuid |
+| title | string |
 
 ---
 
 ## USER_PROGRESS
 
-Tracks learning progress.
+Tracks user learning progress.
 
-### Metrics
+### Fields
 
-* Completion percentage
-* Updated timestamp
+| Field | Type |
+|---|---|
+| id | uuid |
+| user_id | uuid |
+| lesson_id | uuid |
+| progress_percent | float |
 
 ---
 
 ## GAMIFICATION
 
-Stores gamification information.
+Stores gamification data.
 
 ### Purpose
+- Motivation system
+- XP & leveling
 
-* User engagement
-* XP system
-* Level progression
+### Fields
 
-### Metrics
-
-* XP
-* Levels
-* Achievement tracking
+| Field | Type |
+|---|---|
+| id | uuid |
+| user_id | uuid |
+| xp | integer |
+| level | integer |
 
 ---
 
-# 8. Community System
+# 4. COMMUNITY SYSTEM
+
+Handles social interaction inside the platform.
 
 ---
 
 ## FORUM_POSTS
 
-Stores discussion posts.
+Stores forum discussions.
 
-### Purpose
+### Fields
 
-* Community interaction
-* Knowledge sharing
+| Field | Type |
+|---|---|
+| id | uuid |
+| user_id | uuid |
+| title | string |
 
 ---
 
 ## FORUM_COMMENTS
 
-Stores comments under forum posts.
+Stores post comments.
 
-### Purpose
+### Fields
 
-* Discussion threads
+| Field | Type |
+|---|---|
+| id | uuid |
+| post_id | uuid |
+| user_id | uuid |
 
 ---
 
@@ -358,210 +375,175 @@ Stores comments under forum posts.
 
 Stores personal notes.
 
-### Purpose
+### Fields
 
-* Learning annotations
-* Interview preparation notes
+| Field | Type |
+|---|---|
+| id | uuid |
+| user_id | uuid |
+| title | string |
 
 ---
 
-# 9. RAG & AI System
+# 5. RAG & AI SYSTEM
+
+AI knowledge retrieval system.
 
 ---
 
 ## RAG_DOCUMENTS
 
-Stores knowledge base documents.
+Stores AI knowledge documents.
 
 ### Purpose
+- AI context retrieval
+- Knowledge indexing
 
-* Retrieval-Augmented Generation
-* Semantic search
+### Fields
 
-### Examples
-
-* PDFs
-* Learning materials
-* Internal documentation
+| Field | Type |
+|---|---|
+| id | uuid |
+| title | string |
+| content | text |
 
 ---
 
 ## VECTOR_EMBEDDINGS
 
-Stores vector embedding metadata.
+Stores vector embedding references.
 
 ### Purpose
+- Semantic search
+- Vector retrieval
 
-* AI semantic retrieval
-* Vector search indexing
+### Fields
 
-### Connected To
-
-* Weaviate vector database
+| Field | Type |
+|---|---|
+| id | uuid |
+| document_id | uuid |
+| embedding_model | string |
 
 ---
 
 ## AI_PROMPTS
 
-Stores AI system prompts.
+Stores prompt templates.
 
 ### Purpose
+- Prompt engineering
+- AI configuration
 
-* Prompt engineering
-* AI workflow customization
+### Fields
+
+| Field | Type |
+|---|---|
+| id | uuid |
+| prompt_name | string |
+| prompt_content | text |
 
 ---
 
-# 10. Admin & Monitoring System
+# 6. ADMIN & MONITORING SYSTEM
+
+Administrative & observability system.
 
 ---
 
 ## ADMIN_LOGS
 
-Stores admin activities.
+Stores admin activity logs.
 
 ### Purpose
+- Security audit
+- System tracking
 
-* Audit logging
-* Security tracking
+### Fields
 
-### Examples
-
-* Delete user
-* Update course
-* Change AI settings
+| Field | Type |
+|---|---|
+| id | uuid |
+| admin_id | uuid |
+| action | string |
 
 ---
 
 ## SYSTEM_METRICS
 
-Stores system monitoring metrics.
+Stores monitoring metrics.
 
 ### Purpose
+- Performance monitoring
+- System health tracking
 
-* Performance monitoring
-* Infrastructure analytics
+### Fields
 
-### Metrics
-
-* CPU usage
-* Memory usage
-* Response time
-
----
-
-# 11. Database Relationships
-
-## Core Relationships
-
-| Relationship                      | Type        |
-| --------------------------------- | ----------- |
-| USERS → INTERVIEW_SESSIONS        | One-to-Many |
-| INTERVIEW_SESSIONS → QUESTIONS    | One-to-Many |
-| QUESTIONS → ANSWERS               | One-to-Many |
-| USERS → LEARNING_PATHS            | One-to-Many |
-| COURSES → LESSONS                 | One-to-Many |
-| USERS → FORUM_POSTS               | One-to-Many |
-| RAG_DOCUMENTS → VECTOR_EMBEDDINGS | One-to-Many |
+| Field | Type |
+|---|---|
+| id | uuid |
+| cpu_usage | float |
+| memory_usage | float |
+| response_time | float |
 
 ---
 
-# 12. System Workflow
+# Relationships Summary
 
-## User Flow
-
-```text
-User Login
-   ↓
-Upload CV
-   ↓
-AI Resume Analysis
-   ↓
-Start AI Interview
-   ↓
-AI Question Generation
-   ↓
-Answer Evaluation
-   ↓
-Interview Report
-   ↓
-Personalized Learning Path
-```
+| Relationship | Description |
+|---|---|
+| USERS → INTERVIEW_SESSIONS | User starts interviews |
+| INTERVIEW_SESSIONS → QUESTIONS | Session contains questions |
+| QUESTIONS → ANSWERS | Questions receive answers |
+| INTERVIEW_SESSIONS → INTERVIEW_REPORTS | Session generates report |
+| USERS → LEARNING_PATHS | User follows roadmap |
+| COURSES → LESSONS | Course contains lessons |
+| LESSONS → QUIZZES | Lesson has quizzes |
+| USERS → FORUM_POSTS | User creates posts |
+| RAG_DOCUMENTS → VECTOR_EMBEDDINGS | Document generates embeddings |
 
 ---
 
-# 13. AI Architecture Integration
+# Architecture Design Principles
 
-## AI Components
+The database architecture follows:
 
-| Component    | Purpose                   |
-| ------------ | ------------------------- |
-| LangGraph    | Multi-agent orchestration |
-| OpenAI / LLM | AI generation             |
-| RAG Pipeline | Knowledge retrieval       |
-| Weaviate     | Vector similarity search  |
-| Redis        | Session cache             |
-| Langfuse     | AI tracing                |
+- Modular design
+- AI-oriented architecture
+- Scalable schema
+- Separation of domains
+- Cloud-native system design
 
 ---
 
-# 14. Scalability Considerations
+# Future Improvements
 
-The system is designed for scalability:
+Possible future extensions:
 
-### Features
-
-* Modular architecture
-* Domain separation
-* Vector database integration
-* AI observability
-* Async processing
-* Real-time analytics
-
----
-
-# 15. Security Considerations
-
-### Security Features
-
-| Feature            | Purpose                   |
-| ------------------ | ------------------------- |
-| Password hashing   | Credential protection     |
-| Role-based access  | Admin/User separation     |
-| Audit logs         | Activity tracking         |
-| JWT Authentication | Secure session management |
+- Real-time analytics
+- Multi-agent memory system
+- AI behavioral tracking
+- Speech emotion analysis
+- AI recruiter benchmarking
+- Distributed vector search
+- Event-driven architecture
 
 ---
 
-# 16. Future Improvements
+# Final Notes
 
-Potential future enhancements:
+This database architecture is designed for:
 
-* Multi-tenant architecture
-* AI agent memory
-* Real-time collaboration
-* Video interview analysis
-* Speech emotion detection
-* Recommendation engine
-* Kubernetes deployment
+- AI Interview SaaS platforms
+- AI learning assistants
+- AI-powered recruitment systems
+- Large-scale educational platforms
+
+The schema is optimized for:
+
+- Maintainability
+- AI integration
+- Future scalability
+- Production deployment
 
 ---
-
-# 17. Conclusion
-
-This database architecture provides a scalable foundation for:
-
-* AI Interview Simulation
-* Personalized Learning
-* Community Collaboration
-* AI Knowledge Retrieval
-* Enterprise Monitoring
-
-The system combines:
-
-* relational data (MySQL),
-* vector search (Weaviate),
-* caching (Redis),
-* and AI orchestration (LangGraph)
-
-to build a modern AI-powered interview and learning platform.
